@@ -1,4 +1,4 @@
-package core
+package reverse_proxy
 
 import (
 	"time"

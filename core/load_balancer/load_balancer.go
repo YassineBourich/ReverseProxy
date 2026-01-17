@@ -1,4 +1,4 @@
-package backend
+package load_balancer
 
 import (
 	"net/url"

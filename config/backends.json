@@ -1,0 +1,17 @@
+[
+    {
+        "url": "http://localhost:8081",
+        "alive": true,
+        "current_connections": 8
+    },
+    {
+        "url": "http://localhost:8082",
+        "alive": true,
+        "current_connections": 9
+    },
+    {
+        "url": "http://localhost:8083",
+        "alive": true,
+        "current_connections": 0
+    }
+]

@@ -1,14 +1,49 @@
-package backend
+package load_balancer
 
 import (
-	"sync"
+	"encoding/json"
 	"net/url"
+	"os"
+	"sync"
+	"fmt"
 )
 
 type ServerPool struct {
 	Backends []*Backend `json:"backends"`
 	Current  uint64     `json:"current"` // Used for Round-Robin
 	mux      sync.RWMutex
+}
+
+func (sp *ServerPool) LoadConfiguration() error {
+	conf_file, err := os.ReadFile("config\\backends.json")
+	if err != nil {
+		return err
+	}
+
+	var backends []Backend
+
+	err = json.Unmarshal(conf_file, &backends)
+	fmt.Println(err)
+	if err != nil {
+		return err
+	}
+	
+	fmt.Println(backends)
+	//sp.Backends = make([]*Backend, len(backends))
+	for i := range backends {
+		sp.Backends = append(sp.Backends, &backends[i])
+		//sp.Backends[i] = &backends[i]
+	}
+	fmt.Println(sp.Backends)
+	return nil
+}
+
+func (sp *ServerPool) Print_backends() {
+	if sp.Backends == nil {
+		fmt.Println("nil backends")
+	} else {
+		fmt.Println(sp.Backends[0])
+	}
 }
 
 func (sp *ServerPool) increment_current() {
