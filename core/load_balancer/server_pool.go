@@ -14,36 +14,27 @@ type ServerPool struct {
 	mux      sync.RWMutex
 }
 
-func (sp *ServerPool) LoadConfiguration() error {
-	conf_file, err := os.ReadFile("config\\backends.json")
+func NewServerPool(conf_file_name string) (*ServerPool, error) {
+	var sp = ServerPool{}
+
+	conf_file, err := os.ReadFile(conf_file_name)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("ServerPool Unmarshal json error: %w\n", err)
 	}
 
 	var backends []Backend
 
 	err = json.Unmarshal(conf_file, &backends)
-	fmt.Println(err)
 	if err != nil {
-		return err
+		return nil, fmt.Errorf("ServerPool Unmarshal json error: %w\n", err)
 	}
 	
-	fmt.Println(backends)
-	//sp.Backends = make([]*Backend, len(backends))
+	sp.Backends = make([]*Backend, len(backends))
 	for i := range backends {
-		sp.Backends = append(sp.Backends, &backends[i])
-		//sp.Backends[i] = &backends[i]
+		sp.Backends[i] = &backends[i]
 	}
 	fmt.Println(sp.Backends)
-	return nil
-}
-
-func (sp *ServerPool) Print_backends() {
-	if sp.Backends == nil {
-		fmt.Println("nil backends")
-	} else {
-		fmt.Println(sp.Backends[0])
-	}
+	return &sp, nil
 }
 
 func (sp *ServerPool) increment_current() {
@@ -87,7 +78,7 @@ func (sp *ServerPool) LeastConnValidPeer() *Backend {
 	var least_conn_peer = sp.Backends[0]
 
 	for _, b := range sp.Backends {
-		if least_conn_peer.CurrentConns > b.CurrentConns {
+		if (b.Alive) && (least_conn_peer.CurrentConns > b.CurrentConns) {
 			least_conn_peer = b
 		}
 	}

@@ -8,6 +8,10 @@ import (
 	"net/url"
 )
 
+type ReverseProxyCore struct {
+	
+}
+
 /*
 Function to forward the request comming from the client
 to another server and send back the response
