@@ -6,7 +6,6 @@ import (
 	"reverse_proxy/core/load_balancer"
 	"reverse_proxy/core/reverse_proxy"
 	"reverse_proxy/health_checker"
-	//"sync"
 	"time"
 )
 
@@ -29,5 +28,5 @@ func main() {
 		}(i)
 	}
 
-	http.ListenAndServe(":8080", ph)
+	http.ListenAndServe(fmt.Sprintf(":%d", ph.Config.Port), ph)
 }

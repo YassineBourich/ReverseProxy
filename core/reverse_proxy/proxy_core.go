@@ -6,17 +6,34 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"time"
 )
 
 type ReverseProxyCore struct {
-	
+	client *http.Client
+}
+
+// Reverse proxy core constructor
+func NewReverseProxyCore(timeout time.Duration) *ReverseProxyCore {
+	var proxy = ReverseProxyCore{}
+
+	proxy.client = &http.Client{
+		Timeout: timeout,
+		Transport: &http.Transport{
+			MaxIdleConns:        100,
+			MaxIdleConnsPerHost: 10,
+			IdleConnTimeout:     90 * time.Second,
+		},
+	}
+
+	return &proxy
 }
 
 /*
 Function to forward the request comming from the client
 to another server and send back the response
 */
-func ForwardRequest(w http.ResponseWriter, r *http.Request, server url.URL) error {
+func (proxy ReverseProxyCore) ForwardRequest(w http.ResponseWriter, r *http.Request, server url.URL) error {
 	// Resolving traget url
 	var target = server
 	target.Path = r.URL.Path
@@ -40,8 +57,7 @@ func ForwardRequest(w http.ResponseWriter, r *http.Request, server url.URL) erro
 	req.Header.Set("X-Forwarded-For", ip)
 
 	// Performing the request
-	client := &http.Client{}
-	res, err := client.Do(req)
+	res, err := proxy.client.Do(req)
 	if err != nil {
 		return err
 	}

@@ -13,6 +13,7 @@ type HealthChecker struct {
 	healthCheckFreq *time.Duration
 }
 
+// Constructor fot HealthChecker struct
 func NewHealthChecker(timeout time.Duration, healthCheckFreq *time.Duration) (*HealthChecker, error) {
 	var hc = HealthChecker{}
 
@@ -30,13 +31,15 @@ func NewHealthChecker(timeout time.Duration, healthCheckFreq *time.Duration) (*H
 	return &hc, nil
 }
 
+// Method to ping a backend given its url
 func (hc *HealthChecker) ping_server(serverUrl url.URL) (int, time.Duration, error) {
 	url := serverUrl.String()
 	
-	
+	// Sending a get request while counting the time for response
 	start := time.Now()
 	resp, err := hc.client.Get(url)
 	if err != nil {
+		// if the server is down the error will not be nil
 		return 0, 0 * time.Second, errors.ServerDownError
 	}
 	defer resp.Body.Close()
@@ -46,13 +49,15 @@ func (hc *HealthChecker) ping_server(serverUrl url.URL) (int, time.Duration, err
 	return resp.StatusCode, duration, nil
 }
 
+// Method to ping a backend and update its state
 func (hc *HealthChecker) PingServerPeriodically(backend *load_balancer.Backend) {
 	for {
 		statusCode, responseTime, err := hc.ping_server(*backend.URL)
 
-		backend.Alive = (statusCode != 0) && (err == nil)
+		backend.Alive = (statusCode != 0) && (err == nil)	// status code in convention cannot be 0
 		backend.LastResponseTime = responseTime
 
+		// waiting the time definged in the frequency
 		time.Sleep(*hc.healthCheckFreq)
 	}
 }
