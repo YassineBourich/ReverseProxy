@@ -37,7 +37,7 @@ func (hc *HealthChecker) ping_server(serverUrl url.URL) (int, time.Duration, err
 	
 	// Sending a get request while counting the time for response
 	start := time.Now()
-	resp, err := hc.client.Get(url)
+	resp, err := hc.client.Head(url)
 	if err != nil {
 		// if the server is down the error will not be nil
 		return 0, 0 * time.Second, errors.ServerDownError

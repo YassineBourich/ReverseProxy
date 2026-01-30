@@ -1,32 +1,38 @@
 package reverse_proxy
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net"
 	"net/http"
 	"net/url"
 	"time"
+	"errors"
+	cerrors "reverse_proxy/CustomErrors"
 )
 
 type ReverseProxyCore struct {
-	client *http.Client
+	transport *http.Transport
+	timeout time.Duration
 }
 
 // Reverse proxy core constructor
 func NewReverseProxyCore(timeout time.Duration) *ReverseProxyCore {
 	var proxy = ReverseProxyCore{}
 
-	proxy.client = &http.Client{
-		Timeout: timeout,
-		Transport: &http.Transport{
-			MaxIdleConns:        100,
-			MaxIdleConnsPerHost: 10,
-			IdleConnTimeout:     90 * time.Second,
-		},
+	proxy.timeout = timeout
+	proxy.transport = &http.Transport{
+		MaxIdleConns:        1000,
+		MaxIdleConnsPerHost: 100,
+		IdleConnTimeout:     90 * time.Second,
 	}
 
 	return &proxy
+}
+
+func (proxy ReverseProxyCore) setup_request(r *http.Request) {
+
 }
 
 /*
@@ -39,12 +45,18 @@ func (proxy ReverseProxyCore) ForwardRequest(w http.ResponseWriter, r *http.Requ
 	target.Path = r.URL.Path
 	target.RawQuery = r.URL.RawQuery
 
-	fmt.Println(target)
+	// Defining the request's context
+	r_ctx := r.Context()
+
+	// Adding timeout to the request's context
+	r_ctx, cancel := context.WithTimeout(r_ctx, proxy.timeout)
+	defer cancel()
+
 	// Creating new request 
-	req, err := http.NewRequest(r.Method, target.String(), r.Body)
+	req, err := http.NewRequestWithContext(r_ctx, r.Method, target.String(), r.Body)
 
 	if err != nil {
-		return err
+        return err
 	}
 
 	// Copy headers from original request
@@ -53,12 +65,19 @@ func (proxy ReverseProxyCore) ForwardRequest(w http.ResponseWriter, r *http.Requ
 	// Set correct Host for backend
 	req.Host = server.Host
 
+	// Defining the X-Forwarded-For header by the ip seen by the proxy the one sent by the user
 	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
 	req.Header.Set("X-Forwarded-For", ip)
 
 	// Performing the request
-	res, err := proxy.client.Do(req)
+	res, err := proxy.transport.RoundTrip(req)
 	if err != nil {
+		fmt.Println(err)
+        if errors.Is(r_ctx.Err(), context.DeadlineExceeded) {
+            http.Error(w, cerrors.HttpError(http.StatusGatewayTimeout).Error(), http.StatusGatewayTimeout)
+        } else {
+            http.Error(w, cerrors.HttpError(http.StatusBadGateway).Error(), http.StatusBadGateway)
+        }
 		return err
 	}
 	// Send back the response

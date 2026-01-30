@@ -13,7 +13,7 @@ import (
 func main() {
 	//http.HandleFunc("/about", handler)
 	var LB, _ = load_balancer.NewServerPool("config\\backends.json")
-	var ph, _ = reverse_proxy.NewProxyHandler(LB, "config\\proxy.json")
+	var ph, _ = reverse_proxy.NewProxyHandler(2 * time.Second, LB, "config\\proxy.json")
 
 	hc, _ := health_checker.NewHealthChecker(time.Second, &ph.Config.HealthCheckFreq)
 

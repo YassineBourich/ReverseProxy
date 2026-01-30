@@ -4,6 +4,7 @@ import (
 	"time"
 	"encoding/json"
 	"fmt"
+	errors "reverse_proxy/CustomErrors"
 )
 
 type ProxyConfig struct {
@@ -24,13 +25,13 @@ func (pg *ProxyConfig) UnmarshalJSON(data []byte) error {
 
 	// Unmarshaling data into aux and handling error
 	if err := json.Unmarshal(data, &aux); err != nil {
-		return fmt.Errorf("Proxy Configuration Unmarshal json error: %w\n", err)
+		return fmt.Errorf("%w: %w\n", errors.ProxyConfUnmarshalErr, err)
 	}
 
 	// Parsing the time duration string and handling error
 	parsed_duration, err := time.ParseDuration(aux.HealthCheckFreq)
 	if err != nil {
-		return fmt.Errorf("Proxy Configuration parsing duration error: %w\n", err)
+		return fmt.Errorf("%w: %w\n", errors.ProxyConfDurationParsingErr, err)
 	}
 
 	// Assigning values to the original struct

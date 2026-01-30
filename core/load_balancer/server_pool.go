@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync"
 	"fmt"
+	errors "reverse_proxy/CustomErrors"
 )
 
 type ServerPool struct {
@@ -23,7 +24,7 @@ func NewServerPool(conf_file_name string) (*ServerPool, error) {
 	conf_file, err := os.ReadFile(conf_file_name)
 	// File reading error handling
 	if err != nil {
-		return nil, fmt.Errorf("ServerPool Unmarshal json error: %w\n", err)
+		return nil, fmt.Errorf("%w: %w\n", errors.ServerPoolUnmarshalErr, err)
 	}
 
 	// Instantiating a slice of backends
@@ -33,7 +34,7 @@ func NewServerPool(conf_file_name string) (*ServerPool, error) {
 	err = json.Unmarshal(conf_file, &backends)
 	// Json unmarshaling error handling
 	if err != nil {
-		return nil, fmt.Errorf("ServerPool Unmarshal json error: %w\n", err)
+		return nil, fmt.Errorf("%w: %w\n", errors.ServerPoolUnmarshalErr, err)
 	}
 	
 	// Initializing a slice of pointers of backends and copying the address of the unmarshaled backends

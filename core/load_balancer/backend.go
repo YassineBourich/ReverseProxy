@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"sync"
 	"time"
+	errors "reverse_proxy/CustomErrors"
 )
 
 type Backend struct {
@@ -30,13 +31,13 @@ func (b *Backend) UnmarshalJSON(data []byte) error {
 
 	// Unmarshal the data to aux and check for error
 	if err := json.Unmarshal(data, &aux); err != nil {
-		return fmt.Errorf("Backend Unmarshal json error: %w\n", err)
+		return fmt.Errorf("%w: %w\n", errors.BackendUnmarshalErr, err)
 	}
 
 	// Parsing the url
 	parsed_url, err := url.Parse(aux.URL)
 	if err != nil {
-		return fmt.Errorf("Backend parsing url error: %w\n", err)
+		return fmt.Errorf("%w: %w\n", errors.BackendUrlParsingErr, err)
 	}
 
 	// Assigning value to the original struct
