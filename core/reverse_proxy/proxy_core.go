@@ -10,6 +10,7 @@ import (
 	"errors"
 	cerrors "reverse_proxy/CustomErrors"
 	"strings"
+	"fmt"
 )
 
 type ReverseProxyCore struct {
@@ -88,6 +89,7 @@ func (proxy ReverseProxyCore) returning_response(w http.ResponseWriter, res *htt
 
 	// Write status code
 	w.WriteHeader(res.StatusCode)
+	fmt.Println("Http!!!")
 
 	// Copy body
 	_, err := io.Copy(w, res.Body)

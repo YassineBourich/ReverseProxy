@@ -7,15 +7,16 @@ import (
 	"reverse_proxy/core/reverse_proxy"
 	"reverse_proxy/health_checker"
 	"time"
+	"reverse_proxy/admin_api"
 )
 
 
 func main() {
 	//http.HandleFunc("/about", handler)
 	var LB, _ = load_balancer.NewServerPool("config\\backends.json")
-	var ph, _ = reverse_proxy.NewProxyHandler(2 * time.Second, LB, "config\\proxy.json")
+	var proxy_handler, _ = reverse_proxy.NewProxyHandler(20 * time.Second, LB, "config\\proxy.json")
 
-	hc, _ := health_checker.NewHealthChecker(time.Second, &ph.Config.HealthCheckFreq)
+	hc, _ := health_checker.NewHealthChecker(time.Second, &proxy_handler.Config.HealthCheckFreq)
 
 	for i := range LB.Backends {
 		go hc.PingServerPeriodically(LB.Backends[i])
@@ -23,10 +24,18 @@ func main() {
 		go func(idx int) {
 			for {
 				fmt.Println((*LB.Backends[idx].URL).String(), ":", LB.Backends[idx].Alive, " | ", LB.Backends[idx].LastResponseTime)
-				time.Sleep(3 * time.Second)
+				time.Sleep(proxy_handler.Config.HealthCheckFreq)
 			}
 		}(i)
 	}
 
-	http.ListenAndServe(fmt.Sprintf(":%d", ph.Config.Port), ph)
+	go adminapi.ProxyAdmin(":8079")
+	
+	reverse_proxy_server := &http.Server{
+		Addr:         fmt.Sprintf(":%d", proxy_handler.Config.Port),
+		Handler:      proxy_handler,
+		IdleTimeout: 120 * time.Second,
+	}
+
+	reverse_proxy_server.ListenAndServe()
 }
