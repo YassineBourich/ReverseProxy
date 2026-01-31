@@ -2,7 +2,6 @@ package reverse_proxy
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -10,11 +9,13 @@ import (
 	"time"
 	"errors"
 	cerrors "reverse_proxy/CustomErrors"
+	"strings"
 )
 
 type ReverseProxyCore struct {
 	transport *http.Transport
 	timeout time.Duration
+	hopByHopHeaders []string
 }
 
 // Reverse proxy core constructor
@@ -28,11 +29,69 @@ func NewReverseProxyCore(timeout time.Duration) *ReverseProxyCore {
 		IdleConnTimeout:     90 * time.Second,
 	}
 
+	proxy.hopByHopHeaders = []string{
+        "Connection",
+        "Keep-Alive",
+        "Proxy-Authenticate",
+        "Proxy-Authorization",
+        "Te",
+        "Trailers",
+        "Transfer-Encoding",
+        "Upgrade",
+    }
+
 	return &proxy
 }
 
 func (proxy ReverseProxyCore) setup_request(r *http.Request) {
 
+}
+
+func (proxy ReverseProxyCore) clean_request_headers(r *http.Request, client_ip string) {
+	// deleting headers from the Connection header
+	if c := r.Header.Get("Connection"); c != "" {
+		for _, extra := range strings.Split(c, ",") {
+			name := strings.TrimSpace(extra)
+			if name != "" {
+				r.Header.Del(name) // Delete it from the request before forwarding
+			}
+		}
+	}
+
+	// deleting hop-by-hop headers
+	for _, h := range proxy.hopByHopHeaders {
+		r.Header.Del(h)
+	}
+
+	// Appending the X-Forwarded-For header by the ip seen by the proxy not the one sent by the user
+	if client_ip == "" {
+		return
+	}
+
+	prior := r.Header.Get("X-Forwarded-For")
+	if prior != "" {
+		client_ip = prior + ", " + client_ip
+	}
+	r.Header.Set("X-Forwarded-For", client_ip)
+}
+
+func (proxy ReverseProxyCore) returning_response(w http.ResponseWriter, res *http.Response) error {
+	// Send back the response
+	defer res.Body.Close()
+
+	// Copy response headers
+	for key, values := range res.Header {
+		for _, value := range values {
+			w.Header().Add(key, value)
+		}
+	}
+
+	// Write status code
+	w.WriteHeader(res.StatusCode)
+
+	// Copy body
+	_, err := io.Copy(w, res.Body)
+	return err
 }
 
 /*
@@ -54,7 +113,6 @@ func (proxy ReverseProxyCore) ForwardRequest(w http.ResponseWriter, r *http.Requ
 
 	// Creating new request 
 	req, err := http.NewRequestWithContext(r_ctx, r.Method, target.String(), r.Body)
-
 	if err != nil {
         return err
 	}
@@ -65,14 +123,16 @@ func (proxy ReverseProxyCore) ForwardRequest(w http.ResponseWriter, r *http.Requ
 	// Set correct Host for backend
 	req.Host = server.Host
 
-	// Defining the X-Forwarded-For header by the ip seen by the proxy the one sent by the user
-	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
-	req.Header.Set("X-Forwarded-For", ip)
+	// Cleaning headers of the request
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		ip = ""
+	}
+	proxy.clean_request_headers(req, ip)
 
 	// Performing the request
 	res, err := proxy.transport.RoundTrip(req)
 	if err != nil {
-		fmt.Println(err)
         if errors.Is(r_ctx.Err(), context.DeadlineExceeded) {
             http.Error(w, cerrors.HttpError(http.StatusGatewayTimeout).Error(), http.StatusGatewayTimeout)
         } else {
@@ -80,20 +140,6 @@ func (proxy ReverseProxyCore) ForwardRequest(w http.ResponseWriter, r *http.Requ
         }
 		return err
 	}
-	// Send back the response
-	defer res.Body.Close()
 
-	// Copy response headers
-	for key, values := range res.Header {
-		for _, value := range values {
-			w.Header().Add(key, value)
-		}
-	}
-
-	// Write status code
-	w.WriteHeader(res.StatusCode)
-
-	// Copy body
-	_, err = io.Copy(w, res.Body)
-	return err
+	return proxy.returning_response(w, res)
 }
