@@ -50,6 +50,7 @@ func (proxy ReverseProxyCore) setup_request(r *http.Request) {
 
 func (proxy ReverseProxyCore) clean_request_headers(r *http.Request, client_ip string) {
 	// deleting headers from the Connection header
+	fmt.Println("heaphop: ", r.Header.Get("Connection"))
 	if c := r.Header.Get("Connection"); c != "" {
 		for _, extra := range strings.Split(c, ",") {
 			name := strings.TrimSpace(extra)
