@@ -18,25 +18,22 @@ func main() {
 
 	hc, _ := health_checker.NewHealthChecker(time.Second, &proxy_handler.Config.HealthCheckFreq)
 
-	for i := range LB.Backends {
-		go hc.PingServerPeriodically(LB.Backends[i])
-	}
+	go hc.PingLoadBalancerPeriodically(LB)
 
-	for i := range LB.Backends {
+	/*for i := range LB.Backends {
 		go func(idx int) {
 			for {
 				fmt.Println((*LB.Backends[idx].URL).String(), ":", LB.Backends[idx].Alive, " | ", LB.Backends[idx].LastResponseTime)
-				time.Sleep(proxy_handler.Config.HealthCheckFreq)
+				time.Sleep(time.Second)
 			}
 		}(i)
-	}
-
+	}*/
+	
 	go adminapi.ProxyAdmin(":8079", LB)
 	
 	reverse_proxy_server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", proxy_handler.Config.Port),
 		Handler:      proxy_handler,
-		IdleTimeout: 120 * time.Second,
 	}
 
 	reverse_proxy_server.ListenAndServe()

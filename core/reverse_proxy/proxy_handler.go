@@ -44,7 +44,7 @@ func (p ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var server *load_balancer.Backend
 	// resolving the load balancing strategy from the configuration file and getting the valid backend
 	switch p.Config.Strategy {
-	case "round-robin":
+	case "round-robin":	
 		server = p.LoadBalancer.GetNextValidPeer()
 	case "least-conn":
 		server = p.LoadBalancer.LeastConnValidPeer()

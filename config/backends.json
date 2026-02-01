@@ -13,10 +13,5 @@
         "url": "http://localhost:8083",
         "alive": true,
         "current_connections": 0
-    }, 
-    {
-        "url": "http://localhost:8084",
-        "alive": true,
-        "current_connections": 0
     }
 ]

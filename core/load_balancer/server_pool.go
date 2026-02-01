@@ -93,8 +93,6 @@ func (sp *ServerPool) all_not_alive() bool {
 
 // Method to get the next valid peer using the round-robin strategy
 func (sp *ServerPool) GetNextValidPeer() *Backend {
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
 	// Check if there is at least one backend alive
 	if sp.all_not_alive() {
 		return nil
@@ -111,8 +109,6 @@ func (sp *ServerPool) GetNextValidPeer() *Backend {
 
 // Method to get the next valid peer using the least-connections strategy
 func (sp *ServerPool) LeastConnValidPeer() *Backend {
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
 	// Check if there is at least one backend alive
 	if sp.all_not_alive() {
 		return nil

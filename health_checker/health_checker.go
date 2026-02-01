@@ -3,9 +3,9 @@ package health_checker
 import (
 	"net/http"
 	"net/url"
-	"time"
-	"reverse_proxy/core/load_balancer"
 	errors "reverse_proxy/CustomErrors"
+	"reverse_proxy/core/load_balancer"
+	"time"
 )
 
 type HealthChecker struct {
@@ -50,12 +50,29 @@ func (hc *HealthChecker) ping_server(serverUrl url.URL) (int, time.Duration, err
 }
 
 // Method to ping a backend and update its state
-func (hc *HealthChecker) PingServerPeriodically(backend *load_balancer.Backend) {
+func (hc *HealthChecker) PingBackendPeriodically(backend *load_balancer.Backend) {
 	for {
 		statusCode, responseTime, err := hc.ping_server(*backend.URL)
 
 		backend.Alive = (statusCode != 0) && (err == nil)	// status code in convention cannot be 0
 		backend.LastResponseTime = responseTime
+
+		// waiting the time definged in the frequency
+		time.Sleep(*hc.healthCheckFreq)
+	}
+}
+
+// Method to ping a backend and update its state
+func (hc *HealthChecker) PingLoadBalancerPeriodically(lb load_balancer.LoadBalancer) {
+	var backend *load_balancer.Backend
+	for {
+		for i := range lb.GetBackendsNum() {
+			backend = lb.GetBackend(i)
+			statusCode, responseTime, err := hc.ping_server(*backend.URL)
+
+			backend.UpdateStatus((statusCode != 0) && (err == nil))	// status code in convention cannot be 0
+			backend.UpdateResponseTime(responseTime)
+		}
 
 		// waiting the time definged in the frequency
 		time.Sleep(*hc.healthCheckFreq)

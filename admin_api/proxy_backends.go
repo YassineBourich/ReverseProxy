@@ -4,6 +4,7 @@ import (
 	//"encoding/json"
 	"encoding/json"
 	"net/http"
+	"net/url"
 	errors "reverse_proxy/CustomErrors"
 	"reverse_proxy/core/load_balancer"
 )
@@ -13,8 +14,17 @@ func HandleBackends(lb load_balancer.LoadBalancer) http.HandlerFunc {
 	// Returning handler function
 	return func(w http.ResponseWriter, r *http.Request) {
 		var backend load_balancer.Backend
+		aux := struct {
+			Url string `json:"url"`
+		}{}
 		defer r.Body.Close()
-		if err := json.NewDecoder(r.Body).Decode(&backend); err != nil {
+		if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
+			http.Error(w, errors.HttpError(http.StatusInternalServerError).Error(), http.StatusInternalServerError)
+			return
+		}
+		var err error
+		backend.URL, err = url.Parse(aux.Url)
+		if err != nil {
 			http.Error(w, errors.HttpError(http.StatusInternalServerError).Error(), http.StatusInternalServerError)
 			return
 		}
