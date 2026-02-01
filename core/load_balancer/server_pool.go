@@ -2,11 +2,10 @@ package load_balancer
 
 import (
 	"encoding/json"
-	"net/url"
 	"os"
 	"sync"
 	"fmt"
-	errors "reverse_proxy/CustomErrors"
+	"reverse_proxy/CustomErrors"
 )
 
 type ServerPool struct {
@@ -24,7 +23,7 @@ func NewServerPool(conf_file_name string) (*ServerPool, error) {
 	conf_file, err := os.ReadFile(conf_file_name)
 	// File reading error handling
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w\n", errors.ServerPoolUnmarshalErr, err)
+		return nil, fmt.Errorf("%w: %w\n", customerrors.ServerPoolUnmarshalErr, err)
 	}
 
 	// Instantiating a slice of backends
@@ -34,7 +33,7 @@ func NewServerPool(conf_file_name string) (*ServerPool, error) {
 	err = json.Unmarshal(conf_file, &backends)
 	// Json unmarshaling error handling
 	if err != nil {
-		return nil, fmt.Errorf("%w: %w\n", errors.ServerPoolUnmarshalErr, err)
+		return nil, fmt.Errorf("%w: %w\n", customerrors.ServerPoolUnmarshalErr, err)
 	}
 	
 	// Initializing a slice of pointers of backends and copying the address of the unmarshaled backends
@@ -44,6 +43,30 @@ func NewServerPool(conf_file_name string) (*ServerPool, error) {
 	}
 	
 	return &sp, nil
+}
+
+// Getters
+func (sp *ServerPool) GetBackendsNum() int {
+	return len(sp.Backends)
+}
+
+func (sp *ServerPool) GetAliveBackendsNum() int {
+	if len(sp.Backends) <= 0 {
+		return 0
+	}
+
+	num := 0
+	for _, b := range sp.Backends {
+		if b.Alive {
+			num++
+		}
+	}
+
+	return num
+}
+
+func (sp *ServerPool) GetBackend(i int) *Backend {
+	return sp.Backends[i]
 }
 
 // Method to Thread-safe increment the counter current
@@ -107,13 +130,30 @@ func (sp *ServerPool) LeastConnValidPeer() *Backend {
 	return least_conn_peer
 }
 
-// Thread-safe backend appending
-func (sp *ServerPool) AddBackend(backend *Backend) {
+// Thread-safe backend adding and removing
+func (sp *ServerPool) AddBackend(backend *Backend) error {
 	sp.mux.Lock()
 	defer sp.mux.Unlock()
 	sp.Backends = append(sp.Backends, backend)
+	return nil
 }
 
-func (sp *ServerPool) SetBackendStatus(uri *url.URL, alive bool) {
-
+func (sp *ServerPool) RemoveBackend(backend *Backend) error {
+	sp.mux.Lock()
+	defer sp.mux.Unlock()
+	targetURL := backend.URL.String()
+	for i, b := range sp.Backends {
+		if b.URL.String() == targetURL {
+			// Swap with last
+			lastIdx := len(sp.Backends) - 1
+			sp.Backends[i] = sp.Backends[lastIdx]
+			
+			// Clean up for Garbage collector
+			sp.Backends[lastIdx] = nil
+			sp.Backends = sp.Backends[:lastIdx]
+			
+			return nil
+		}
+	}
+	return customerrors.BackendNotFound
 }

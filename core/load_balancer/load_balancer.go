@@ -1,12 +1,11 @@
 package load_balancer
 
-import (
-	"net/url"
-)
-
 type LoadBalancer interface {
+	GetBackendsNum() int
+	GetAliveBackendsNum() int
+	GetBackend(i int) *Backend
 	GetNextValidPeer() *Backend
 	LeastConnValidPeer() *Backend
-	AddBackend(backend *Backend)
-	SetBackendStatus(uri *url.URL, alive bool)
+	AddBackend(backend *Backend) error
+	RemoveBackend(backend *Backend) error
 }

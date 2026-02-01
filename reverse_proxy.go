@@ -20,7 +20,9 @@ func main() {
 
 	for i := range LB.Backends {
 		go hc.PingServerPeriodically(LB.Backends[i])
+	}
 
+	for i := range LB.Backends {
 		go func(idx int) {
 			for {
 				fmt.Println((*LB.Backends[idx].URL).String(), ":", LB.Backends[idx].Alive, " | ", LB.Backends[idx].LastResponseTime)
@@ -29,7 +31,7 @@ func main() {
 		}(i)
 	}
 
-	go adminapi.ProxyAdmin(":8079")
+	go adminapi.ProxyAdmin(":8079", LB)
 	
 	reverse_proxy_server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", proxy_handler.Config.Port),

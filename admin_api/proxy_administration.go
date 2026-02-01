@@ -1,19 +1,16 @@
 package adminapi
 
 import (
-	"fmt"
 	"net/http"
+	"reverse_proxy/core/load_balancer"
 )
 
-func handle(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "hello")
-}
-
-func ProxyAdmin(port string) {
-	fmt.Println("HHHHHHH")
+func ProxyAdmin(port string, load_balancer load_balancer.LoadBalancer) {
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("/", handle)
+	mux.HandleFunc("/login", HandleLogin)
+	mux.HandleFunc("/status", AuthenticationMiddleware(HandleStatus(load_balancer)))
+	mux.HandleFunc("/backend", AuthenticationMiddleware(HandleBackends(load_balancer)))
 
 	admin_server := &http.Server{
 		Addr: port,

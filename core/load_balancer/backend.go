@@ -13,7 +13,7 @@ type Backend struct {
 	URL *url.URL `json:"url"`
 	Alive bool `json:"alive"`
 	CurrentConns int64 `json:"current_connections"`
-	LastResponseTime time.Duration
+	LastResponseTime time.Duration `json:"last_response_time"`
 	mux sync.RWMutex
 }
 
@@ -22,6 +22,7 @@ type aux_backend struct {
 	URL string `json:"url"`
 	Alive bool `json:"alive"`
 	CurrentConns int64 `json:"current_connections"`
+	LastResponseTime time.Duration `json:"last_response_time"`
 }
 
 // Method to define custom Unmarshaling approche
@@ -45,6 +46,24 @@ func (b *Backend) UnmarshalJSON(data []byte) error {
 	b.Alive = aux.Alive
 	b.CurrentConns = aux.CurrentConns
 	return nil
+}
+
+// Method to define custom Marshaling approche
+// We have to Marshal a url as a string
+func (b *Backend) MarshalJSON() ([]byte, error) {
+	aux := aux_backend{}
+	aux.Alive = b.Alive
+	aux.CurrentConns = b.CurrentConns
+	aux.LastResponseTime = b.LastResponseTime
+	aux.URL = b.URL.String()
+
+	// Marshaling aux into a byte array
+	data, err := json.Marshal(aux)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %w\n", errors.BackendMarshalErr, err)
+	}
+
+	return data, nil
 }
 
 // Thread-safe counter incrementing
