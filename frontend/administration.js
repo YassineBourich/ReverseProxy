@@ -18,8 +18,7 @@ async function checkAccess() {
 
         // Handle invalid/expired token
         if (!response.ok) {
-            sessionStorage.removeItem("token"); // Clean up the bad token
-            window.location.replace("/administration-login");
+            logout();
             return;
         }
     } catch (error) {
@@ -32,7 +31,8 @@ checkAccess();
 const add_backend_btn = document.getElementById("add_backend_btn"),
 add_url_btn = document.getElementById("add_url_btn"),
 url_field = document.getElementById("url_field"),
-url_form = document.getElementById("url_form"),
+url_form = document.querySelector(".url_form"),
+close_url_form_btn = document.getElementById("close_url_form"),
 backends_div = document.querySelector(".backends"),
 total_backends = document.querySelector(".total_backends"),
 active_backends = document.querySelector(".active_backends");
@@ -50,8 +50,7 @@ async function fetch_backends_status() {
 
         if (!response.ok) {
             if (response.status == 401) {
-                sessionStorage.removeItem("token"); // Clean up the bad token
-                window.location.replace("/administration-login");
+                logout();
                 return;
             } else {
 
@@ -76,6 +75,21 @@ async function fetch_backends_status() {
 
 setInterval(fetch_backends_status, 1000);
 
+function open_url_field() {
+    if (url_form.classList.contains("hided")) {
+        url_form.classList.replace("hided", "showed");
+    }
+}
+
+function close_url_field() {
+    if (url_form.classList.contains("showed")) {
+        url_form.classList.replace("showed", "hided");
+    }
+}
+
+add_backend_btn.onclick = open_url_field;
+close_url_form_btn.onclick = close_url_field;
+
 async function add_backend(url) {
     token = sessionStorage.getItem("token");
     const backend = {
@@ -93,8 +107,7 @@ async function add_backend(url) {
 
         if (!response.ok) {
             if (response.status == 401) {
-                sessionStorage.removeItem("token"); // Clean up the bad token
-                window.location.replace("/administration-login");
+                logout();
                 return;
             } else {
 
@@ -130,8 +143,7 @@ async function remove_backend(url) {
 
         if (!response.ok) {
             if (response.status == 401) {
-                sessionStorage.removeItem("token"); // Clean up the bad token
-                window.location.replace("/administration-login");
+                logout();
                 return;
             } else {
 
@@ -145,3 +157,12 @@ async function remove_backend(url) {
         console.error("Network error during adding:", error);
     }
 }
+
+// Function to logout from administration
+function logout() {
+    sessionStorage.removeItem("token"); // Clean up the expired token
+    window.location.replace("/administration-login");
+}
+
+const logout_btn = document.getElementById("logout_btn");
+logout_btn.onclick = logout;

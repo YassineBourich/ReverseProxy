@@ -8,10 +8,10 @@ var admin_endpoint = "/login";
 function toggle_password() {
     if (password.type == "password") {
         password.type = "text"
-        eye_btn.classList.replace("fa-eye", "fa-eye-slash")
+        eye_btn.classList.replace("fa-eye", "fa-eye-slash");
     } else {
         password.type = "password"
-        eye_btn.classList.replace("fa-eye-slash", "fa-eye")
+        eye_btn.classList.replace("fa-eye-slash", "fa-eye");
     }
 }
 

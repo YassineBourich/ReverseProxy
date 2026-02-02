@@ -9,18 +9,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body>
-    <form action="" method="post">
-        <div>
-            <label for="username">Username</label>
-            <input type="text" name="username" id="username" required>
-        </div>
-        <div>
-            <label for="password">Password</label>
-            <input type="password" name="password" id="password" required>
-            <i id="eye_icon" class="fa fa-eye"></i>
-        </div>
-        <input type="submit" value="Submit" id="submit">
-    </form>
+    <header>
+        <span><h1>REVERSE PROXY</h1></span>
+    </header>
+    <div class="container">
+        <form action="" method="post">
+            <div class="error_div hided">
+
+            </div>
+            <div>
+                <label for="username">Username</label><br>
+                <input type="text" name="username" id="username" required>
+            </div>
+            <div>
+                <label for="password">Password</label><br>
+                <div class="password_field">
+                    <input type="password" name="password" id="password" required>
+                    <i id="eye_icon" class="fa fa-eye"></i>
+                </div>
+            </div>
+            <input type="submit" value="Submit" id="submit">
+        </form>
+    </div>
+    <footer></footer>
 </body>
 <script src="login.js"></script>
 </html>
