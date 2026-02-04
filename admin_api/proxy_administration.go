@@ -18,6 +18,9 @@ func ProxyAdmin(port string, load_balancer load_balancer.LoadBalancer) {
 	mux.HandleFunc("/administration-login", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "frontend\\login.html")
 	})
+	mux.HandleFunc("/error.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "frontend\\error.js")
+	})
 	mux.HandleFunc("/login.js", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "frontend\\login.js")
 	})

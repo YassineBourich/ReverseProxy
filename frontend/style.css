@@ -4,6 +4,10 @@
     font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
+body {
+    overflow-y: hidden;
+}
+
 header, footer {
     color: white;
     background-color: royalblue;
@@ -52,6 +56,7 @@ footer {
 
 main {
     position: relative;
+    padding: 20px;
 }
 
 .url_form {
@@ -59,7 +64,7 @@ main {
     top: 0;
     left: 0;
     width: 100%;
-    height: calc(100vh - 95px);
+    height: calc(100vh - 98px);
     z-index: 200;
     background-color: rgba(128, 128, 128, 0.39);
 }
@@ -80,22 +85,22 @@ main {
     right: 10px;
     top: 10px;
     background-color: white;
-    color: royalblue;
-    border: 1px solid royalblue;
+    color: red;
+    border: 1px solid red;
     transition: 0.2s;
     padding: 5px 7px;
 }
 
 #close_url_form:hover {
-    background-color: royalblue;
+    background-color: red;
     color: white;
-    border-color: royalblue;
+    border-color: red;
     transition: 0.2s;
 }
 
 #close_url_form:active {
-    background-color: rgb(21, 53, 148);
-    border-color: rgb(21, 53, 148);
+    background-color: rgb(141, 10, 10);
+    border-color: rgb(141, 10, 10);
 }
 
 .url_form form {
@@ -131,8 +136,10 @@ main {
     border-color: rgb(21, 53, 148);
 }
 
-.err_text {
-    color: red;
+.url_form form p {
+    margin-top: 8px;
+    color: gray;
+    font-size: 9pt;
 }
 
 .container {
@@ -170,4 +177,93 @@ main {
 .password_field i {
     position: absolute;
     right: 10px;
+    color: blue;
+    border-radius: 50%;
+    transition: 0.2s;
+    padding: 6px;
+}
+
+.password_field i:hover {
+    background-color: rgba(159, 159, 255, 0.685);
+    transition: 0.2s;
+}
+
+#add_backend_btn {
+    padding: 6px;
+}
+
+.container form input[type="submit"], #add_backend_btn {
+    background-color: royalblue;
+    color: white;
+    border: 1px solid royalblue;
+    font-size: 0.93em;
+    transition: 0.2s;
+}
+
+.container form input[type="submit"]:hover, #add_backend_btn:hover {
+    background-color: white;
+    color: royalblue;
+    transition: 0.2s;
+}
+
+.container form input[type="submit"]:active, #add_backend_btn:active {
+    border-color: rgb(37, 37, 255);
+    color: rgb(37, 37, 255);
+}
+
+.error_div {
+    border: 1px solid red;
+    background-color: rgb(255, 168, 168);
+    color: rgb(151, 30, 30);
+    padding: 10px;
+    font-size: 0.9em;
+    margin-bottom: 20px;
+}
+
+.error_div li {
+    list-style: inside;
+}
+
+.gen_status {
+    margin: 10px;
+    display: flex;
+}
+
+.gen_status div {
+    width: 100%;
+    text-align: center;
+    border-bottom: 1px solid gray;
+    padding: 10px;
+}
+
+.backends {
+    height: calc(100vh - 215px);
+    overflow-y: auto;
+}
+
+.backends > div {
+    display: flex;
+    border-bottom: 1px solid royalblue;
+    padding: 10px;
+}
+
+.backends > div > span {
+    width: 100%;
+}
+
+.backends > div > button {
+    background-color: red;
+    color: white;
+    border: 1px solid red;
+    padding: 2px 15px;
+}
+
+.backends > div > button:hover {
+    background-color: white;
+    color: red;
+}
+
+.backends > div > button:active {
+    border-color: rgb(141, 10, 10);
+    color: rgb(141, 10, 10);
 }

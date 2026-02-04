@@ -20,7 +20,7 @@ func main() {
 
 	go hc.PingLoadBalancerPeriodically(LB)
 
-	/*for i := range LB.Backends {
+	/*for i := range LB.GetBackendsNum() {
 		go func(idx int) {
 			for {
 				fmt.Println((*LB.Backends[idx].URL).String(), ":", LB.Backends[idx].Alive, " | ", LB.Backends[idx].LastResponseTime)

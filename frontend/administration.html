@@ -13,21 +13,24 @@
         <span><h1>REVERSE PROXY</h1></span>
         <span><button id="logout_btn">Logout</button></span>
     </header>
-    <main>
+    <main id="admin_main" class="hided">
         <button id="add_backend_btn">Add Backend</button>
         <div class="url_form hided">
             <div class="url_form_card">
                 <button id="close_url_form"><i class="fa fa-close"></i></button>
                 <form action="">
-                    <p class="err_text">tr</p>
+                    <div class="error_div hided"></div>
                     <input type="text" name="url" id="url_field" placeholder="URL">
+                    <p>Enter one or many URLs separated by a space or |</p>
                     <input type="button" value="Add" id="add_url_btn">
                 </form>
             </div>
         </div>
         <div class="status">
-            <div class="total_backends"></div>
-            <div class="active_backends"></div>
+            <div class="gen_status">
+                <div class="total_backends"></div>
+                <div class="active_backends"></div>
+            </div>
             <div class="backends">
 
             </div>
@@ -37,5 +40,6 @@
         <p>Administration page to monitor the reverse proxy and the backends</p>
     </footer>
 </body>
+<script src="error.js"></script>
 <script src="administration.js"></script>
 </html>

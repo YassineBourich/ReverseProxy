@@ -21,8 +21,11 @@ async function checkAccess() {
             logout();
             return;
         }
+
+        document.querySelector("#admin_main").classList.replace("hided", "showed");
     } catch (error) {
         console.error("Network error during validation:", error);
+        logout();
     }
 }
 
@@ -51,28 +54,58 @@ async function fetch_backends_status() {
         if (!response.ok) {
             if (response.status == 401) {
                 logout();
-                return;
             } else {
-
+                console.error("Internal Server error");
             }
+            return;
         }
 
         backends_status = await response.json();
-        total_backends.innerHTML = backends_status.total_backends | 0;
-        active_backends.innerHTML = backends_status.active_backends | 0;
+        total_backends.innerHTML = `Total backends: ${backends_status.total_backends | 0}`;
+        active_backends.innerHTML = `Active backends: ${backends_status.active_backends | 0}`;
         backends_div.innerHTML = "";
+        let key = 0;
         for (let backend of backends_status.backends) {
-            backends_div.innerHTML += "<div>" + backend.url + " | " + backend.alive + " | " + backend.current_connections + " | " + backend.last_response_time + "<button id='" + backend.url + "'>remove</button></div>";
-            document.getElementById(backend.url).onclick = async () => {
-                console.log("Must be removed" + backend.url);
+            backends_div.insertAdjacentHTML('beforeend', get_backend_row(backend, key));
+            document.querySelector(`button[key="${key}"]`).onclick = async () => {
                 await remove_backend(backend.url);
             }
+            key++;
         }
     } catch (error) {
         console.error("Network error during fetching:", error);
     }
 }
 
+function get_backend_row(backend, key) {
+    return `
+        <div>
+            <span>${backend.url}</span>
+            ${backend.alive ? "<span style='font-weight: bold; color: green'>Alive</span>" : "<span style='font-weight: bold; color: red'>Down</span>"}
+            <span style='color: ${(backend.last_response_time / (1000 * 1000) > 999) ? "red" : "black"}'>${format_response_time(backend.last_response_time)}</span>
+            <span>${backend.current_connections}</span>
+            <button key="${key}"><i class="fa fa-trash"></i></button>
+        </div>
+    `;
+}
+
+function format_response_time(response_time) {
+    if (0 < response_time && response_time < 1000) {
+        return String(round_2(response_time)) + "ns";
+    } else if (1000 <= response_time && response_time < 1000 * 1000) {
+        return String(round_2(response_time / 1000)) + "µs";
+    } else if (1000 * 1000 <= response_time && response_time < 1000 * 1000 * 1000) {
+        return String(round_2(response_time / (1000 * 1000))) + "ms";
+    } else {
+        return String(round_2(response_time / (1000 * 1000 * 1000))) + "s";
+    }
+}
+
+function round_2(num) {
+    return Math.round(num * 100) / 100;
+}
+
+fetch_backends_status();
 setInterval(fetch_backends_status, 1000);
 
 function open_url_field() {
@@ -87,10 +120,15 @@ function close_url_field() {
     }
 }
 
-add_backend_btn.onclick = open_url_field;
+add_backend_btn.onclick = () => {
+    close_error();
+    url_field.value = "";
+    open_url_field();
+}
 close_url_form_btn.onclick = close_url_field;
 
-async function add_backend(url) {
+async function send_add_backend_request(url) {
+    close_error();
     token = sessionStorage.getItem("token");
     const backend = {
         url: url,
@@ -108,22 +146,54 @@ async function add_backend(url) {
         if (!response.ok) {
             if (response.status == 401) {
                 logout();
-                return;
             } else {
-
+                set_error(["Internal server error"]);
             }
-        }
-
-        if (response.status == 201) {
-            console.log("YAY!");
+            return;
         }
     } catch (error) {
         console.error("Network error during adding:", error);
     }
 }
 
-add_url_btn.onclick = async () => {
-    await add_backend(url_field.value);
+add_url_btn.onclick = add_backends;
+
+url_field.onkeydown = (e) => {
+    if (e.key == 'Enter') {
+        e.preventDefault();
+        add_backends();
+    }
+}
+
+async function add_backends() {
+    urls = url_field.value.split(/[ |]+/);
+
+    for (let i = 0; i < urls.length; i++) {
+        urls[i] = urls[i].trim();
+    }
+
+    urls = urls.filter(url => url !== "");
+
+    if (urls.length == 0) {
+        set_error(["Empty URL"]);
+        return;
+    }
+
+    err = [];
+    for (let i = 0; i < urls.length; i++) {
+        if (!URL.canParse(urls[i])) {
+            err.push(urls[i] + "is not a valid URL");
+        }
+    }
+    if (err.length > 0) {
+        set_error(err);
+        return;
+    }
+
+    for (let i = 0; i < urls.length; i++) {
+        await send_add_backend_request(urls[i]);
+    }
+    close_url_field();
 };
 
 async function remove_backend(url) {
@@ -144,14 +214,10 @@ async function remove_backend(url) {
         if (!response.ok) {
             if (response.status == 401) {
                 logout();
-                return;
             } else {
-
+                console.error("Backend Not Found");
             }
-        }
-
-        if (response.status == 204) {
-            console.log("YAY!");
+            return;
         }
     } catch (error) {
         console.error("Network error during adding:", error);

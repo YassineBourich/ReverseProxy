@@ -2,7 +2,6 @@ package adminapi
 
 import (
 	"encoding/json"
-	"io"
 	"net/http"
 	"os"
 	errors "reverse_proxy/CustomErrors"
@@ -70,12 +69,7 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 		// Reading credentials sent by the user
 		defer r.Body.Close()
 		var user Admin
-		bodyData, err := io.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, errors.HttpError(http.StatusInternalServerError).Error(), http.StatusInternalServerError)
-			return
-		}
-		if err := json.Unmarshal(bodyData, &user); err != nil {
+		if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 			http.Error(w, errors.HttpError(http.StatusInternalServerError).Error(), http.StatusInternalServerError)
 			return
 		}
