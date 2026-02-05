@@ -3,8 +3,9 @@ password = document.getElementById("password"),
 login_btn = document.getElementById("submit"),
 eye_btn = document.getElementById("eye_icon");
 
-var admin_endpoint = "/login";
+var login_endpoint = "/login";
 
+// Function to show or hide the password in the password field
 function toggle_password() {
     if (password.type == "password") {
         password.type = "text"
@@ -15,20 +16,24 @@ function toggle_password() {
     }
 }
 
+// Function to submit the login credentials to login_endpoint
 async function submit_credentials(e) {
     e.preventDefault();
+    // Validating the input
     close_error();
     if (!validate_fields()) {
         return;
     }
 
+    // building a json Object
     const credentials = {
         "username": username.value,
         "password": password.value,
     }
 
     try {
-        const res = await fetch(admin_endpoint, {
+        // Sending a POST request with credentials
+        const res = await fetch(login_endpoint, {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -36,6 +41,7 @@ async function submit_credentials(e) {
             body: JSON.stringify(credentials),
         });
 
+        // Resolving errors if any
         if (!res.ok) {
             if (res.status === 401) {
                 set_error(["Wrong credentials"]);
@@ -47,6 +53,7 @@ async function submit_credentials(e) {
             return;
         }
 
+        // If no error, store the token in the browser and redirect to administration page
         const token = await res.text();
         sessionStorage.setItem("token", token);
         window.location.href = "/administration";
@@ -55,10 +62,11 @@ async function submit_credentials(e) {
     }
 }
 
+// click events definition
 eye_btn.onclick = toggle_password;
-
 login_btn.onclick = submit_credentials;
 
+// Fields validation checks if fields are empty
 function validate_fields() {
     err = [];
     if (username.value == "") {
@@ -68,8 +76,10 @@ function validate_fields() {
         err.push("Empty password");
     }
     
+    // If a field is empty show the error
     if (err.length > 0) {
         set_error(err);
     }
+    // return true if no error
     return err.length == 0;
 }

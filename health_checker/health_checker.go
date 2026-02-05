@@ -17,6 +17,7 @@ type HealthChecker struct {
 func NewHealthChecker(timeout time.Duration, healthCheckFreq *time.Duration) (*HealthChecker, error) {
 	var hc = HealthChecker{}
 
+	// Defining the client with finite timeout so that slow servers are treated as DOWN
 	hc.client = &http.Client{
 		Timeout: timeout,
 		Transport: &http.Transport{
@@ -42,8 +43,9 @@ func (hc *HealthChecker) ping_server(serverUrl url.URL) (int, time.Duration, err
 		// if the server is down the error will not be nil
 		return 0, 0 * time.Second, errors.ServerDownError
 	}
-	defer resp.Body.Close()
-
+	// For a HEAD request, the body is empty, so no need to consume it, but still must be closed
+	resp.Body.Close()
+	// Calculating the response time
 	duration := time.Since(start)
 
 	return resp.StatusCode, duration, nil
@@ -62,10 +64,12 @@ func (hc *HealthChecker) PingBackendPeriodically(backend *load_balancer.Backend)
 	}
 }
 
-// Method to ping a backend and update its state
+// Method to ping a Load Balancer and update its state
 func (hc *HealthChecker) PingLoadBalancerPeriodically(lb load_balancer.LoadBalancer) {
 	var backend *load_balancer.Backend
+	// Repeat forever
 	for {
+		// Pinging all the backends in the load balancer
 		for i := range lb.GetBackendsNum() {
 			backend = lb.GetBackend(i)
 			statusCode, responseTime, err := hc.ping_server(*backend.URL)

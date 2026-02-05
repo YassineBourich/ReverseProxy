@@ -8,6 +8,7 @@ import (
 	"reverse_proxy/CustomErrors"
 )
 
+// Server Pool struct implements LoadBalancer
 type ServerPool struct {
 	Backends []*Backend `json:"backends"`
 	Current  uint64     `json:"current"` // Used for Round-Robin
@@ -55,6 +56,7 @@ func (sp *ServerPool) GetAliveBackendsNum() int {
 		return 0
 	}
 
+	// Incrementing num if a backend is alive
 	num := 0
 	for _, b := range sp.Backends {
 		if b.Alive {
@@ -82,6 +84,7 @@ func (sp *ServerPool) all_not_alive() bool {
 		return true
 	}
 
+	// If at least one is alive return false
 	for _, b := range sp.Backends {
 		if b.Alive {
 			return false
@@ -138,6 +141,7 @@ func (sp *ServerPool) RemoveBackend(backend *Backend) error {
 	sp.mux.Lock()
 	defer sp.mux.Unlock()
 	targetURL := backend.URL.String()
+	// backend removal is done without taking care of the order to assure fast deletion
 	for i, b := range sp.Backends {
 		if b.URL.String() == targetURL {
 			// Swap with last

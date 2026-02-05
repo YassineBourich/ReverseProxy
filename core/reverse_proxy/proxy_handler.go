@@ -56,7 +56,7 @@ func (p ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	// if no backend is available, handle the error
 	if server == nil {
-		// Write error status code
+		// Write error status code: Service Unavailable 503
 		http.Error(w, errors.HttpError(http.StatusServiceUnavailable).Error(), http.StatusServiceUnavailable)
 		return
 	}

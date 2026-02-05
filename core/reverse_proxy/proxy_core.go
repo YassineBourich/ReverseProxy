@@ -10,7 +10,6 @@ import (
 	"errors"
 	cerrors "reverse_proxy/CustomErrors"
 	"strings"
-	"fmt"
 )
 
 type ReverseProxyCore struct {
@@ -30,6 +29,7 @@ func NewReverseProxyCore(timeout time.Duration) *ReverseProxyCore {
 		IdleConnTimeout:     90 * time.Second,
 	}
 
+	// Defining hop-by-hop headers
 	proxy.hopByHopHeaders = []string{
         "Connection",
         "Keep-Alive",
@@ -44,18 +44,15 @@ func NewReverseProxyCore(timeout time.Duration) *ReverseProxyCore {
 	return &proxy
 }
 
-func (proxy ReverseProxyCore) setup_request(r *http.Request) {
-
-}
-
 func (proxy ReverseProxyCore) clean_request_headers(r *http.Request, client_ip string) {
 	// deleting headers from the Connection header
-	fmt.Println("heaphop: ", r.Header.Get("Connection"))
 	if c := r.Header.Get("Connection"); c != "" {
+		// Reolving connection headers
 		for _, extra := range strings.Split(c, ",") {
+			// Removing them
 			name := strings.TrimSpace(extra)
 			if name != "" {
-				r.Header.Del(name) // Delete it from the request before forwarding
+				r.Header.Del(name)
 			}
 		}
 	}
@@ -90,7 +87,6 @@ func (proxy ReverseProxyCore) returning_response(w http.ResponseWriter, res *htt
 
 	// Write status code
 	w.WriteHeader(res.StatusCode)
-	fmt.Println("Http!!!")
 
 	// Copy body
 	_, err := io.Copy(w, res.Body)
@@ -144,5 +140,6 @@ func (proxy ReverseProxyCore) ForwardRequest(w http.ResponseWriter, r *http.Requ
 		return err
 	}
 
+	// Returning the returning the response to the client
 	return proxy.returning_response(w, res)
 }

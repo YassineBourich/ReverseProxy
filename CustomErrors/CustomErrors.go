@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// Defining custom errors
 var ServerDownError = errors.New("Server is down")
 var BackendUnmarshalErr = errors.New("Backend Unmarshal json error")
 var BackendMarshalErr = errors.New("Backend Marshal json error")

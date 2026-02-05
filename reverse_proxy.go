@@ -12,29 +12,23 @@ import (
 
 
 func main() {
-	//http.HandleFunc("/about", handler)
+	// Defining the load balander and proxy handler
 	var LB, _ = load_balancer.NewServerPool("config\\backends.json")
 	var proxy_handler, _ = reverse_proxy.NewProxyHandler(20 * time.Second, LB, "config\\proxy.json")
 
+	// Defining the proxy health checker
 	hc, _ := health_checker.NewHealthChecker(time.Second, &proxy_handler.Config.HealthCheckFreq)
 
+	// Executing the health checker in a separate goroutine (thread)
 	go hc.PingLoadBalancerPeriodically(LB)
-
-	/*for i := range LB.GetBackendsNum() {
-		go func(idx int) {
-			for {
-				fmt.Println((*LB.Backends[idx].URL).String(), ":", LB.Backends[idx].Alive, " | ", LB.Backends[idx].LastResponseTime)
-				time.Sleep(time.Second)
-			}
-		}(i)
-	}*/
 	
+	// Run the proxy admin server on a separate goroutine on port 8079 with pointer to the load balancer
 	go adminapi.ProxyAdmin(":8079", LB)
 	
+	// Running the core reverse proxy server with port provided in the configuration file
 	reverse_proxy_server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", proxy_handler.Config.Port),
 		Handler:      proxy_handler,
 	}
-
 	reverse_proxy_server.ListenAndServe()
 }

@@ -1,5 +1,6 @@
 package load_balancer
 
+// Load Balancer interface
 type LoadBalancer interface {
 	GetBackendsNum() int
 	GetAliveBackendsNum() int

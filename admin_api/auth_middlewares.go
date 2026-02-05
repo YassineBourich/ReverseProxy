@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+// Authentication middleware checks if the request header contains the login token
+// in order to verify that the user is logged in
 func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
     return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
         authHeader := r.Header.Get("Authorization")
@@ -22,6 +24,7 @@ func AuthenticationMiddleware(next http.HandlerFunc) http.HandlerFunc {
             return
         }
 
+        // Applying next handler function
         next(w, r)
     })
 }

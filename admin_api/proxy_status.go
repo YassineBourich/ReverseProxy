@@ -38,6 +38,7 @@ func HandleStatus(lb load_balancer.LoadBalancer) http.HandlerFunc {
 			w.Header().Set("Content-Type", "application/json")
 			w.Write(jsonRes)
 		} else {
+			// If the request's method is not GET return error with status code 405
 			http.Error(w, errors.HttpError(http.StatusMethodNotAllowed).Error(), http.StatusMethodNotAllowed)
 		}
 	}
