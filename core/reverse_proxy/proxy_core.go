@@ -78,6 +78,11 @@ func (proxy ReverseProxyCore) returning_response(w http.ResponseWriter, res *htt
 	// Send back the response
 	defer res.Body.Close()
 
+	// deleting hop-by-hop headers
+	for _, h := range proxy.hopByHopHeaders {
+		res.Header.Del(h)
+	}
+
 	// Copy response headers
 	for key, values := range res.Header {
 		for _, value := range values {
