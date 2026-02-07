@@ -3,6 +3,7 @@ package adminapi
 import (
 	"net/http"
 	"reverse_proxy/core/load_balancer"
+	"path/filepath"
 )
 
 // Reverse Proxy Administration logic
@@ -19,25 +20,25 @@ func ProxyAdmin(port string, load_balancer load_balancer.LoadBalancer) {
 	mux.HandleFunc("/backends", AuthenticationMiddleware(HandleBackends(load_balancer)))
 	// Frontend of the administration to facilitate request and monitoring by serving frontend files
 	mux.HandleFunc("/administration", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "frontend\\administration.html")
+		http.ServeFile(w, r, filepath.Join("frontend", "administration.html"))
 	})
 	mux.HandleFunc("/administration-login", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "frontend\\login.html")
+		http.ServeFile(w, r, filepath.Join("frontend", "login.html"))
 	})
 	mux.HandleFunc("/error.js", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "frontend\\error.js")
+		http.ServeFile(w, r, filepath.Join("frontend", "error.js"))
 	})
 	mux.HandleFunc("/login.js", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "frontend\\login.js")
+		http.ServeFile(w, r, filepath.Join("frontend", "login.js"))
 	})
 	mux.HandleFunc("/administration.js", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "frontend\\administration.js")
+		http.ServeFile(w, r, filepath.Join("frontend", "administration.js"))
 	})
 	mux.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "frontend\\favicon.ico")
+		http.ServeFile(w, r, filepath.Join("frontend", "favicon.ico"))
 	})
 	mux.HandleFunc("/style.css", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "frontend\\style.css")
+		http.ServeFile(w, r, filepath.Join("frontend", "style.css"))
 	})
 
 	// Defining and running the administration server

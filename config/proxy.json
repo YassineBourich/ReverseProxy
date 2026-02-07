@@ -2,5 +2,6 @@
     "port": 8080,
     "strategy": "round-robin",
     "health_check_frequency": "3s",
+    "logging_enabled": false,
     "panic_recovery": true
 }

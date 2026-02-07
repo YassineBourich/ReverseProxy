@@ -11,6 +11,7 @@ type ProxyConfig struct {
 	Port int `json:"port"`
 	Strategy string `json:"strategy"` // e.g., "round-robin" or "least-conn"
 	HealthCheckFreq time.Duration `json:"health_check_frequency"`
+	LoggingEnabled bool `json:"logging_enabled"`
 	PanicRecovery bool `json:"panic_recovery"`
 }
 
@@ -18,6 +19,7 @@ type aux_config struct {
 	Port int `json:"port"`
 	Strategy string `json:"strategy"`
 	HealthCheckFreq string `json:"health_check_frequency"`
+	LoggingEnabled bool `json:"logging_enabled"`
 	PanicRecovery bool `json:"panic_recovery"`
 }
 
@@ -40,6 +42,7 @@ func (pg *ProxyConfig) UnmarshalJSON(data []byte) error {
 	pg.Port = aux.Port
 	pg.Strategy = aux.Strategy
 	pg.HealthCheckFreq = parsed_duration
+	pg.LoggingEnabled = aux.LoggingEnabled
 	pg.PanicRecovery = aux.PanicRecovery
 	return nil
 }

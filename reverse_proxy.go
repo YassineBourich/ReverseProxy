@@ -8,13 +8,14 @@ import (
 	"reverse_proxy/health_checker"
 	"time"
 	"reverse_proxy/admin_api"
+	"path/filepath"
 )
 
 
 func main() {
 	// Defining the load balander and proxy handler
-	var LB, _ = load_balancer.NewServerPool("config\\backends.json")
-	var proxy_handler, _ = reverse_proxy.NewProxyHandler(20 * time.Second, LB, "config\\proxy.json")
+	var LB, _ = load_balancer.NewServerPool(filepath.Join("config", "backends.json"))
+	var proxy_handler, _ = reverse_proxy.NewProxyHandler(20 * time.Second, LB, filepath.Join("config", "proxy.json"))
 
 	// Defining the proxy health checker
 	hc, _ := health_checker.NewHealthChecker(time.Second, &proxy_handler.Config.HealthCheckFreq)

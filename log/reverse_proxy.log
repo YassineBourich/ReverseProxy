@@ -1,0 +1,18 @@
+2026/02/07 18:24:38 GET /about -> [::1]:59525 | Status: 200 | Duration: 11.0824ms
+2026/02/07 18:25:29 GET /about -> [::1]:59540 | Status: 200 | Duration: 8.5083ms
+2026/02/07 18:25:33 GET /about -> [::1]:59542 | Status: 200 | Duration: 651.1888ms
+2026/02/07 18:25:45 GET /about -> [::1]:59547 | Status: 200 | Duration: 1.9227ms
+2026/02/07 18:25:47 GET /about -> [::1]:59548 | Status: 200 | Duration: 555.1µs
+2026/02/07 18:25:50 GET /about -> [::1]:59549 | Status: 200 | Duration: 1.0096318s
+2026/02/07 18:25:56 GET /about -> [::1]:59553 | Status: 200 | Duration: 511µs
+2026/02/07 18:25:57 GET /about -> [::1]:59554 | Status: 200 | Duration: 562.2µs
+2026/02/07 18:25:59 GET /about -> [::1]:59555 | Status: 200 | Duration: 1.001367s
+2026/02/07 18:36:44 GET /about -> Not selected | Status: 200 | Duration: 8.8458ms
+2026/02/07 18:36:47 GET /about -> Not selected | Status: 200 | Duration: 2.1771ms
+2026/02/07 18:46:30 GET /abou -> http://localhost:8082 | Status: 200 | Duration: 6.7353ms
+2026/02/07 18:46:37 GET /about -> http://localhost:8083 | Status: 200 | Duration: 8.0809ms
+2026/02/07 18:46:42 GET /about -> http://localhost:8081 | Status: 200 | Duration: 1.0026205s
+2026/02/07 18:46:44 GET /about -> http://localhost:8082 | Status: 200 | Duration: 19.2611ms
+2026/02/07 18:46:46 GET /about -> http://localhost:8083 | Status: 200 | Duration: 0s
+2026/02/07 18:46:48 GET /about -> http://localhost:8081 | Status: 200 | Duration: 1.0014241s
+2026/02/07 18:54:21 GET /about -> RemoteAddr: [::1]:59704 | Backend: http://localhost:8082 | Status: 200 | Duration: 8.9783ms

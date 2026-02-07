@@ -9,6 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"		// Bcrypt for hashing
 	"time"
 	"fmt"
+	"path/filepath"
 )
 
 // Defining the secret key used for authentication JWT tokens
@@ -59,7 +60,7 @@ func isTokenValid(tokenString string) bool {
 func HandleLogin(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodPost {
 		// Getting credentials from configuration file
-		cred_file, err := os.ReadFile("config\\admin.json")
+		cred_file, err := os.ReadFile(filepath.Join("config", "admin.json"))
 		if err != nil {
 			http.Error(w, errors.HttpError(http.StatusInternalServerError).Error(), http.StatusInternalServerError)
 			return

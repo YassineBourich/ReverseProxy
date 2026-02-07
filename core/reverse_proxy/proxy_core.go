@@ -44,7 +44,7 @@ func NewReverseProxyCore(timeout time.Duration) *ReverseProxyCore {
 	return &proxy
 }
 
-func (proxy ReverseProxyCore) clean_request_headers(r *http.Request, client_ip string) {
+func (proxy *ReverseProxyCore) clean_request_headers(r *http.Request, client_ip string) {
 	// deleting headers from the Connection header
 	if c := r.Header.Get("Connection"); c != "" {
 		// Reolving connection headers
@@ -74,7 +74,7 @@ func (proxy ReverseProxyCore) clean_request_headers(r *http.Request, client_ip s
 	r.Header.Set("X-Forwarded-For", client_ip)
 }
 
-func (proxy ReverseProxyCore) returning_response(w http.ResponseWriter, res *http.Response) error {
+func (proxy *ReverseProxyCore) returning_response(w http.ResponseWriter, res *http.Response) error {
 	// Send back the response
 	defer res.Body.Close()
 
@@ -102,7 +102,7 @@ func (proxy ReverseProxyCore) returning_response(w http.ResponseWriter, res *htt
 Function to forward the request comming from the client
 to another server and send back the response
 */
-func (proxy ReverseProxyCore) ForwardRequest(w http.ResponseWriter, r *http.Request, server url.URL) error {
+func (proxy *ReverseProxyCore) ForwardRequest(w http.ResponseWriter, r *http.Request, server url.URL) error {
 	// Resolving traget url
 	var target = server
 	target.Path = r.URL.Path
