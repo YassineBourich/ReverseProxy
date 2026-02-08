@@ -71,6 +71,16 @@ func (sp *ServerPool) GetBackend(i int) *Backend {
 	return sp.Backends[i]
 }
 
+// Method to find backend by url value
+func (sp *ServerPool) FindBackendByURL(url string) *Backend {
+	for i := range sp.Backends {
+		if sp.Backends[i].URL.String() == url {
+			return sp.Backends[i]
+		}
+	}
+	return nil
+}
+
 // Method to Thread-safe increment the counter current
 func (sp *ServerPool) increment_current() {
 	sp.Lock()

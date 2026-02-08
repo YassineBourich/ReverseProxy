@@ -5,6 +5,7 @@ type LoadBalancer interface {
 	GetBackendsNum() int
 	GetAliveBackendsNum() int
 	GetBackend(i int) *Backend
+	FindBackendByURL(url string) *Backend
 	GetNextValidPeer() *Backend
 	LeastConnValidPeer() *Backend
 	AddBackend(backend *Backend) error

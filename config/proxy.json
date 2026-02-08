@@ -5,6 +5,7 @@
     "logging_enabled": true,
     "rate_limiter": {"enabled": false, "max_requests_per_second": 1},
     "panic_recovery": true,
+    "sticky_session_enabled": false,
     "ssl": {
         "enabled": true,
         "ssl-certificate": "cert.pem",

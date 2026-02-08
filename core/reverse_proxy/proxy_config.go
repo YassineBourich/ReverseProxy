@@ -16,6 +16,7 @@ type ProxyConfig struct {
 	LoggingEnabled bool `json:"logging_enabled"`
 	RateLimiter ratelimiter.RateLimiter `json:"rate_limiter"`
 	PanicRecovery bool `json:"panic_recovery"`
+	StickySessionEnabled bool `json:"sticky_session_enabled"`
 	SSL ssl_tls.SSL_TLS `json:"ssl"`
 }
 
@@ -26,6 +27,7 @@ type aux_config struct {
 	LoggingEnabled bool `json:"logging_enabled"`
 	RateLimiter ratelimiter.RateLimiter `json:"rate_limiter"`
 	PanicRecovery bool `json:"panic_recovery"`
+	StickySessionEnabled bool `json:"sticky_session_enabled"`
 	SSL ssl_tls.SSL_TLS `json:"ssl"`
 }
 
@@ -51,6 +53,7 @@ func (pg *ProxyConfig) UnmarshalJSON(data []byte) error {
 	pg.LoggingEnabled = aux.LoggingEnabled
 	pg.RateLimiter = aux.RateLimiter
 	pg.PanicRecovery = aux.PanicRecovery
+	pg.StickySessionEnabled = aux.StickySessionEnabled
 	pg.SSL = aux.SSL
 	return nil
 }

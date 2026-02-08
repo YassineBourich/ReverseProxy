@@ -138,24 +138,46 @@ func (p *ProxyHandler) ratelimiter_middleware(next_handler_func http.HandlerFunc
 // proxyHTTP Method essential for reverse proxy
 func (p *ProxyHandler) proxy_http(w http.ResponseWriter, r *http.Request) {
 	var server *load_balancer.Backend
-	// resolving the load balancing strategy from the configuration file and getting the valid backend
-	switch p.Config.Strategy {
-	case "round-robin":	
-		server = p.LoadBalancer.GetNextValidPeer()
-	case "least-conn":
-		server = p.LoadBalancer.LeastConnValidPeer()
-	default:
-		msg := fmt.Sprintf("Internal Configuration Error: unsupported strategy '%s'", p.Config.Strategy)
-		log.Println(msg)
-		http.Error(w, errors.HttpError(http.StatusInternalServerError).Error(), http.StatusInternalServerError)
-		return
+	cookie, err := r.Cookie("reverse_proxy_backend")
+	if !p.Config.StickySessionEnabled || err != nil {
+		// resolving the load balancing strategy from the configuration file and getting the valid backend
+		switch p.Config.Strategy {
+		case "round-robin":	
+			server = p.LoadBalancer.GetNextValidPeer()
+		case "least-conn":
+			server = p.LoadBalancer.LeastConnValidPeer()
+		default:
+			msg := fmt.Sprintf("Internal Configuration Error: unsupported strategy '%s'", p.Config.Strategy)
+			log.Println(msg)
+			http.Error(w, errors.HttpError(http.StatusInternalServerError).Error(), http.StatusInternalServerError)
+			return
+		}
+		// if no backend is available, handle the error
+		if server == nil {
+			// Write error status code: Service Unavailable 503
+			http.Error(w, errors.HttpError(http.StatusServiceUnavailable).Error(), http.StatusServiceUnavailable)
+			return
+		}
+		// If the sticky session is enabled so the err was not nil and the sticky was not found
+		// Therefore this code sets the cookie with the backend
+		if p.Config.StickySessionEnabled {
+			http.SetCookie(w, &http.Cookie{
+				Name: "reverse_proxy_backend", 
+				Value: server.URL.String(), 
+				Path: "/", 
+				HttpOnly: true,
+				MaxAge: 3600,		// Expiration in 2 hours
+			})
+		}
+	} else {
+		// If the Sticky Session was enabled and the backend was found in the cookie, use it to find the backend in the load balancer
+		server = p.LoadBalancer.FindBackendByURL(cookie.Value)
+		if server == nil {
+			http.Error(w, errors.HttpError(http.StatusInternalServerError).Error(), http.StatusInternalServerError)
+			return
+		}
 	}
-	// if no backend is available, handle the error
-	if server == nil {
-		// Write error status code: Service Unavailable 503
-		http.Error(w, errors.HttpError(http.StatusServiceUnavailable).Error(), http.StatusServiceUnavailable)
-		return
-	}
+	
 	// Recording the response writer
 	if writer, ok := w.(*reverse_proxy_response_writer); ok {
 		writer.backend_url = server.URL.String()

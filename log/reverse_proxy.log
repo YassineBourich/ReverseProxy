@@ -19,3 +19,19 @@
 2026/02/08 18:15:58 GET /about -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8081 | Status: 200 | Duration: 1.0016743s
 2026/02/08 18:16:22 http: TLS handshake error from 127.0.0.1:57426: client sent an HTTP request to an HTTPS server
 2026/02/08 18:16:22 http: TLS handshake error from 127.0.0.1:57427: client sent an HTTP request to an HTTPS server
+2026/02/09 00:39:05 GET /about -> RemoteAddr: [::1]:60418 | Backend: http://localhost:8082 | Status: 200 | Duration: 6.8797ms
+2026/02/09 00:39:06 GET /about -> RemoteAddr: [::1]:60420 | Backend: http://localhost:8083 | Status: 200 | Duration: 1.7662ms
+2026/02/09 00:39:14 GET /about -> RemoteAddr: 127.0.0.1:60425 | Backend: http://localhost:8081 | Status: 200 | Duration: 1.0459864s
+2026/02/09 00:39:17 GET /about -> RemoteAddr: 127.0.0.1:60425 | Backend: N/A | Status: 200 | Duration: 0s
+2026/02/09 00:39:19 GET /about -> RemoteAddr: 127.0.0.1:60425 | Backend: N/A | Status: 200 | Duration: 0s
+2026/02/09 00:39:22 GET /about -> RemoteAddr: 127.0.0.1:60425 | Backend: N/A | Status: 200 | Duration: 0s
+2026/02/09 00:39:23 GET /about -> RemoteAddr: 127.0.0.1:60425 | Backend: N/A | Status: 200 | Duration: 0s
+2026/02/09 00:39:53 GET /about -> RemoteAddr: 127.0.0.1:60438 | Backend: http://localhost:8081 | Status: 200 | Duration: 1.0092021s
+2026/02/09 00:39:56 GET /about -> RemoteAddr: 127.0.0.1:60438 | Backend: http://localhost:8081 | Status: 200 | Duration: 1.0173183s
+2026/02/09 00:39:59 GET /about -> RemoteAddr: 127.0.0.1:60438 | Backend: http://localhost:8081 | Status: 200 | Duration: 1.0012305s
+2026/02/09 00:40:01 GET /about -> RemoteAddr: 127.0.0.1:60438 | Backend: http://localhost:8081 | Status: 200 | Duration: 1.0007561s
+2026/02/09 00:40:05 http: TLS handshake error from 127.0.0.1:60440: client sent an HTTP request to an HTTPS server
+2026/02/09 00:40:10 http: TLS handshake error from 127.0.0.1:60443: remote error: tls: bad certificate
+2026/02/09 00:40:10 http: TLS handshake error from 127.0.0.1:60444: remote error: tls: bad certificate
+2026/02/09 00:40:32 GET /about -> RemoteAddr: 127.0.0.1:60438 | Backend: N/A | Status: 200 | Duration: 0s
+2026/02/09 00:41:22 GET /about -> RemoteAddr: 127.0.0.1:60438 | Backend: http://localhost:8081 | Status: 200 | Duration: 1.0014772s
