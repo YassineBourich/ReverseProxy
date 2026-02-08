@@ -28,13 +28,20 @@ func main() {
 		go proxy_handler.RateLimiter.CleanRateLimiter(10 * time.Minute, 30 * time.Minute)
 	}
 	
-	// Run the proxy admin server on a separate goroutine on port 8079 with pointer to the load balancer
-	go adminapi.ProxyAdmin(":8079", LB)
+	// Run the proxy admin server on a separate goroutine on port 8079 with pointer to the load balancer, and ssl
+	go adminapi.ProxyAdmin(":8079", LB, &proxy_handler.Config.SSL)
 	
 	// Running the core reverse proxy server with port provided in the configuration file
 	reverse_proxy_server := &http.Server{
 		Addr:         fmt.Sprintf(":%d", proxy_handler.Config.Port),
 		Handler:      proxy_handler,
 	}
-	reverse_proxy_server.ListenAndServe()
+
+		fmt.Println(proxy_handler.Config.SSL.SSLCert, proxy_handler.Config.SSL.SSLKey)
+	// Use SSL if enabled in the configuration
+	if proxy_handler.Config.SSL.Enabled {
+		reverse_proxy_server.ListenAndServeTLS(proxy_handler.Config.SSL.SSLCert, proxy_handler.Config.SSL.SSLKey)
+	} else {
+		reverse_proxy_server.ListenAndServe()
+	}
 }

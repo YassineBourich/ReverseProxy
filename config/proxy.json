@@ -2,7 +2,12 @@
     "port": 8080,
     "strategy": "round-robin",
     "health_check_frequency": "3s",
-    "logging_enabled": false,
+    "logging_enabled": true,
     "rate_limiter": {"enabled": false, "max_requests_per_second": 1},
-    "panic_recovery": true
+    "panic_recovery": true,
+    "ssl": {
+        "enabled": true,
+        "ssl-certificate": "cert.pem",
+        "ssl-key": "key.pem"
+    }
 }

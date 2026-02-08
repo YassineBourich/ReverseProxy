@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	errors "reverse_proxy/CustomErrors"
+	ssl_tls "reverse_proxy/core/SSL-TLS"
 	ratelimiter "reverse_proxy/core/rate_limiter"
 	"time"
 )
@@ -15,6 +16,7 @@ type ProxyConfig struct {
 	LoggingEnabled bool `json:"logging_enabled"`
 	RateLimiter ratelimiter.RateLimiter `json:"rate_limiter"`
 	PanicRecovery bool `json:"panic_recovery"`
+	SSL ssl_tls.SSL_TLS `json:"ssl"`
 }
 
 type aux_config struct {
@@ -24,6 +26,7 @@ type aux_config struct {
 	LoggingEnabled bool `json:"logging_enabled"`
 	RateLimiter ratelimiter.RateLimiter `json:"rate_limiter"`
 	PanicRecovery bool `json:"panic_recovery"`
+	SSL ssl_tls.SSL_TLS `json:"ssl"`
 }
 
 // Defining a custom method to unmarshal data as we need to parse time duration to seconds
@@ -48,5 +51,6 @@ func (pg *ProxyConfig) UnmarshalJSON(data []byte) error {
 	pg.LoggingEnabled = aux.LoggingEnabled
 	pg.RateLimiter = aux.RateLimiter
 	pg.PanicRecovery = aux.PanicRecovery
+	pg.SSL = aux.SSL
 	return nil
 }

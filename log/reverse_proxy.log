@@ -1,0 +1,21 @@
+2026/02/08 18:14:45 http: TLS handshake error from [::1]:57401: client sent an HTTP request to an HTTPS server
+2026/02/08 18:14:54 GET /about -> RemoteAddr: [::1]:57403 | Backend: http://localhost:8082 | Status: 200 | Duration: 6.6538ms
+2026/02/08 18:14:57 http: TLS handshake error from [::1]:57405: EOF
+2026/02/08 18:15:05 GET /about -> RemoteAddr: [::1]:57406 | Backend: http://localhost:8083 | Status: 200 | Duration: 6.1429ms
+2026/02/08 18:15:12 http: TLS handshake error from 127.0.0.1:57409: remote error: tls: bad certificate
+2026/02/08 18:15:12 http: TLS handshake error from 127.0.0.1:57410: remote error: tls: bad certificate
+2026/02/08 18:15:21 GET /about -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8081 | Status: 200 | Duration: 1.0099382s
+2026/02/08 18:15:21 GET /favicon.ico -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8082 | Status: 200 | Duration: 4.6698ms
+2026/02/08 18:15:31 GET /about -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8083 | Status: 200 | Duration: 6.0212ms
+2026/02/08 18:15:34 GET /about -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8081 | Status: 200 | Duration: 1.000766s
+2026/02/08 18:15:36 GET /about -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8082 | Status: 200 | Duration: 561.9µs
+2026/02/08 18:15:38 GET /about -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8083 | Status: 200 | Duration: 1.5473ms
+2026/02/08 18:15:40 GET /about -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8081 | Status: 200 | Duration: 1.0015638s
+2026/02/08 18:15:41 GET /about -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8082 | Status: 200 | Duration: 0s
+2026/02/08 18:15:42 GET /about -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8083 | Status: 200 | Duration: 10.6385ms
+2026/02/08 18:15:45 GET /about -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8081 | Status: 200 | Duration: 1.0017849s
+2026/02/08 18:15:53 GET /about -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8082 | Status: 200 | Duration: 556.5µs
+2026/02/08 18:15:54 GET /about -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8083 | Status: 200 | Duration: 538.5µs
+2026/02/08 18:15:58 GET /about -> RemoteAddr: 127.0.0.1:57413 | Backend: http://localhost:8081 | Status: 200 | Duration: 1.0016743s
+2026/02/08 18:16:22 http: TLS handshake error from 127.0.0.1:57426: client sent an HTTP request to an HTTPS server
+2026/02/08 18:16:22 http: TLS handshake error from 127.0.0.1:57427: client sent an HTTP request to an HTTPS server

@@ -86,19 +86,23 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 // Middlewares definition
 func (p *ProxyHandler) recovery_middleware(next_handler_func http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
-			if err := recover(); err != nil {
-				log.Printf("%s %s -> RemoteAddr: %s | Err: %s", r.Method, r.URL.Path, r.RemoteAddr, err)
-				
-				// Return err to the client
-				w.WriteHeader(http.StatusInternalServerError)
-				w.Write([]byte("Internal Server Error: Recovery Handled"))
-			}
-		}()
-		
-		next_handler_func(w, r)
+	if p.Config.PanicRecovery {
+		return func(w http.ResponseWriter, r *http.Request) {
+			defer func() {
+				if err := recover(); err != nil {
+					log.Printf("%s %s -> RemoteAddr: %s | Err: %s", r.Method, r.URL.Path, r.RemoteAddr, err)
+					
+					// Return err to the client
+					w.WriteHeader(http.StatusInternalServerError)
+					w.Write([]byte("Internal Server Error: Recovery Handled"))
+				}
+			}()
+			
+			next_handler_func(w, r)
+		}
 	}
+	
+	return next_handler_func
 }
 
 func (p *ProxyHandler) logging_middleware(next_handler_func http.HandlerFunc) http.HandlerFunc {

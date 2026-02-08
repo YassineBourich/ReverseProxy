@@ -2,12 +2,13 @@ package adminapi
 
 import (
 	"net/http"
-	"reverse_proxy/core/load_balancer"
 	"path/filepath"
+	ssl_tls "reverse_proxy/core/SSL-TLS"
+	"reverse_proxy/core/load_balancer"
 )
 
 // Reverse Proxy Administration logic
-func ProxyAdmin(port string, load_balancer load_balancer.LoadBalancer) {
+func ProxyAdmin(port string, load_balancer load_balancer.LoadBalancer, ssl *ssl_tls.SSL_TLS) {
 	// Using a Serve Multiplexer to match request URL
 	mux := http.NewServeMux()
 
@@ -47,5 +48,10 @@ func ProxyAdmin(port string, load_balancer load_balancer.LoadBalancer) {
 		Handler: mux,
 	}
 
-	admin_server.ListenAndServe()
+	// Use SSL if enabled in the configuration
+	if ssl.Enabled {
+		admin_server.ListenAndServeTLS(ssl.SSLCert, ssl.SSLKey)
+	} else {
+		admin_server.ListenAndServe()
+	}
 }
