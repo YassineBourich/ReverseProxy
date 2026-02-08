@@ -3,5 +3,6 @@
     "strategy": "round-robin",
     "health_check_frequency": "3s",
     "logging_enabled": false,
+    "rate_limiter": {"enabled": false, "max_requests_per_second": 1},
     "panic_recovery": true
 }

@@ -22,6 +22,11 @@ func main() {
 
 	// Executing the health checker in a separate goroutine (thread)
 	go hc.PingLoadBalancerPeriodically(LB)
+
+	// Create a goroutine for cleaning the rate limiter if enabled
+	if proxy_handler.Config.RateLimiter.Enabled {
+		go proxy_handler.RateLimiter.CleanRateLimiter(10 * time.Minute, 30 * time.Minute)
+	}
 	
 	// Run the proxy admin server on a separate goroutine on port 8079 with pointer to the load balancer
 	go adminapi.ProxyAdmin(":8079", LB)

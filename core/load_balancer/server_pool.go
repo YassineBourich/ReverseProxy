@@ -10,9 +10,9 @@ import (
 
 // Server Pool struct implements LoadBalancer
 type ServerPool struct {
+	sync.RWMutex
 	Backends []*Backend `json:"backends"`
 	Current  uint64     `json:"current"` // Used for Round-Robin
-	mux      sync.RWMutex
 }
 
 // Constructor for the struct with string parameter of the path of the configuration file
@@ -73,8 +73,8 @@ func (sp *ServerPool) GetBackend(i int) *Backend {
 
 // Method to Thread-safe increment the counter current
 func (sp *ServerPool) increment_current() {
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
+	sp.Lock()
+	defer sp.Unlock()
 	sp.Current = (sp.Current + 1) % uint64(len(sp.Backends))
 }
 
@@ -131,15 +131,15 @@ func (sp *ServerPool) LeastConnValidPeer() *Backend {
 
 // Thread-safe backend adding and removing
 func (sp *ServerPool) AddBackend(backend *Backend) error {
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
+	sp.Lock()
+	defer sp.Unlock()
 	sp.Backends = append(sp.Backends, backend)
 	return nil
 }
 
 func (sp *ServerPool) RemoveBackend(backend *Backend) error {
-	sp.mux.Lock()
-	defer sp.mux.Unlock()
+	sp.Lock()
+	defer sp.Unlock()
 	targetURL := backend.URL.String()
 	// backend removal is done without taking care of the order to assure fast deletion
 	for i, b := range sp.Backends {

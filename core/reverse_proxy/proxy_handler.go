@@ -9,7 +9,9 @@ import (
 	errors "reverse_proxy/CustomErrors"
 	"reverse_proxy/core/load_balancer"
 	"reverse_proxy/core/logging"
+	ratelimiter "reverse_proxy/core/rate_limiter"
 	"time"
+	"net"
 )
 
 // Custom response writer to record status code for middlewares
@@ -32,6 +34,7 @@ type ProxyHandler struct {
 	LoadBalancer load_balancer.LoadBalancer
 	ProxyCore *ReverseProxyCore
 	LoggingContext logging.Logger
+	RateLimiter *ratelimiter.ReverseProxyRateLimiter
 	handler_func http.HandlerFunc
 }
 
@@ -64,8 +67,15 @@ func NewProxyHandler(timeout time.Duration, LoadBalancer load_balancer.LoadBalan
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w\n", errors.ProxyHandlerConstErr, err)
 	}
+	// Creating the rate_limiter if enabled in configuration
+	p.RateLimiter = ratelimiter.CreateReverseProxyRateLimiter(p.Config.RateLimiter)
 	// Resolving middlewares
-	p.handler_func = http.HandlerFunc(p.logging_middleware(p.proxy_http))
+	p.handler_func = http.HandlerFunc(
+		p.recovery_middleware(
+		p.logging_middleware(
+		p.ratelimiter_middleware(
+		p.proxy_http,
+	))))
 	return &p, nil
 }
 
@@ -75,6 +85,22 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 // Middlewares definition
+func (p *ProxyHandler) recovery_middleware(next_handler_func http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if err := recover(); err != nil {
+				log.Printf("%s %s -> RemoteAddr: %s | Err: %s", r.Method, r.URL.Path, r.RemoteAddr, err)
+				
+				// Return err to the client
+				w.WriteHeader(http.StatusInternalServerError)
+				w.Write([]byte("Internal Server Error: Recovery Handled"))
+			}
+		}()
+		
+		next_handler_func(w, r)
+	}
+}
+
 func (p *ProxyHandler) logging_middleware(next_handler_func http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// starting time counter
@@ -85,6 +111,23 @@ func (p *ProxyHandler) logging_middleware(next_handler_func http.HandlerFunc) ht
 		next_handler_func(response_writer, r)
 		// logging information
 		p.LoggingContext.Log(r.Method, r.URL.Path, r.RemoteAddr, response_writer.backend_url, response_writer.status_code, time.Since(start))
+	}
+}
+
+func (p *ProxyHandler) ratelimiter_middleware(next_handler_func http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if p.RateLimiter != nil {
+			// Resolving sender ip address
+			ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+
+			// Checking the requests rate
+			if !p.RateLimiter.IsRateOK(ip) {
+				http.Error(w, errors.HttpError(http.StatusTooManyRequests).Error(), http.StatusTooManyRequests)
+				return
+			}
+		}
+
+		next_handler_func(w, r)
 	}
 }
 

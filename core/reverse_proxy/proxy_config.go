@@ -1,10 +1,11 @@
 package reverse_proxy
 
 import (
-	"time"
 	"encoding/json"
 	"fmt"
 	errors "reverse_proxy/CustomErrors"
+	ratelimiter "reverse_proxy/core/rate_limiter"
+	"time"
 )
 
 type ProxyConfig struct {
@@ -12,6 +13,7 @@ type ProxyConfig struct {
 	Strategy string `json:"strategy"` // e.g., "round-robin" or "least-conn"
 	HealthCheckFreq time.Duration `json:"health_check_frequency"`
 	LoggingEnabled bool `json:"logging_enabled"`
+	RateLimiter ratelimiter.RateLimiter `json:"rate_limiter"`
 	PanicRecovery bool `json:"panic_recovery"`
 }
 
@@ -20,6 +22,7 @@ type aux_config struct {
 	Strategy string `json:"strategy"`
 	HealthCheckFreq string `json:"health_check_frequency"`
 	LoggingEnabled bool `json:"logging_enabled"`
+	RateLimiter ratelimiter.RateLimiter `json:"rate_limiter"`
 	PanicRecovery bool `json:"panic_recovery"`
 }
 
@@ -43,6 +46,7 @@ func (pg *ProxyConfig) UnmarshalJSON(data []byte) error {
 	pg.Strategy = aux.Strategy
 	pg.HealthCheckFreq = parsed_duration
 	pg.LoggingEnabled = aux.LoggingEnabled
+	pg.RateLimiter = aux.RateLimiter
 	pg.PanicRecovery = aux.PanicRecovery
 	return nil
 }
