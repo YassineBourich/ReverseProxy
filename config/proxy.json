@@ -1,6 +1,6 @@
 {
     "port": 8080,
-    "strategy": "round-robin",
+    "strategy": "least-conn",
     "health_check_frequency": "3s",
     "logging_enabled": true,
     "rate_limiter": {"enabled": false, "max_requests_per_second": 1},

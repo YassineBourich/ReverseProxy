@@ -17,6 +17,7 @@ var ProxyConfDurationParsingErr = errors.New("Proxy Configuration parsing durati
 var ProxyHandlerConstErr = errors.New("Proxy handler constructor error")
 var BackendNotFound = errors.New("backend not found")
 var LoggerInitError = errors.New("Logger initialization error")
+var UnsupportedStrategyErr = errors.New("Unsupported backends strategy")
 var HttpError = func(code int) error {
 	return fmt.Errorf("%d %s", code, http.StatusText(code))
 }
