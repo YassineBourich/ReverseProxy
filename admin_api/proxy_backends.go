@@ -20,14 +20,14 @@ func HandleBackends(lb load_balancer.LoadBalancer) http.HandlerFunc {
 		}{}
 		defer r.Body.Close()
 		if err := json.NewDecoder(r.Body).Decode(&aux); err != nil {
-			http.Error(w, errors.HttpError(http.StatusInternalServerError).Error(), http.StatusInternalServerError)
+			http.Error(w, errors.HttpError(http.StatusBadRequest).Error(), http.StatusBadRequest)
 			return
 		}
 		// Parsing the url and populate backend.URL
 		var err error
 		backend.URL, err = url.Parse(aux.Url)
 		if err != nil {
-			http.Error(w, errors.HttpError(http.StatusInternalServerError).Error(), http.StatusInternalServerError)
+			http.Error(w, errors.HttpError(http.StatusBadRequest).Error(), http.StatusBadRequest)
 			return
 		}
 		switch r.Method {
