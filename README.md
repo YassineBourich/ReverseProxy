@@ -43,7 +43,15 @@ The health checker is a crucial element in the reverse proxy that allows the pro
 ```
 
 ## Admin API
-The administration system for this reverse proxy allows the user to monitor and control the server pool
+The administration system for this reverse proxy allows the user to monitor and control the server pool. The openapi describing the Admin API is available in ```doc/admin_api.yaml```.
+
+The Admin API involves the following endpoints:
+- ```GET /status```: allows the user to monitor the status of the server pool (total backends and number of active backends) as well as the status of each backend in the server pool.
+- ```POST /backends```: allows the user to add a backend to the server pool.
+- ```DELETE /backends```: allows the user to remove a backend to the server pool.
+- ```POST /login```: provids a login interface for admin. Not every user can access to administration and use the Admin API.
+
+To facilitate the interaction with this API and to ensure consistency between the login and the usage of the administration endpoints, the administration endpoint frontend can be accessed at ```http://localhost:8079/administration```. The login page is at ```http://localhost:8079/administration-login```. Use *https* if ssl is enabled in ```proxy.json```.
 
 ## Features
 
