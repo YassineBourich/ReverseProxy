@@ -53,7 +53,6 @@ func NewProxyHandler(timeout time.Duration, LoadBalancer load_balancer.LoadBalan
 	}
 
 	err = json.Unmarshal(conf_file, &p.Config)
-	fmt.Println(err)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %w\n", cerrors.ProxyHandlerConstErr, err)
 	}
@@ -232,6 +231,7 @@ func (p *ProxyHandler) proxy_http(w http.ResponseWriter, r *http.Request) {
 	if writer, ok := w.(*reverse_proxy_response_writer); ok {
 		writer.backend_url = server.URL.String()
 	}
+	
 	// Increment the backend's counter, forward request then decrement it
 	server.AddRequest()
 	defer server.RequestDone()

@@ -127,9 +127,15 @@ func (sp *ServerPool) LeastConnValidPeer() *Backend {
 		return nil
 	}
 
-	// Finding the backend with minimal connections and at the same time alive
-	var least_conn_peer = sp.Backends[0]
+	// Getting the first backend that is alive
+	i := 0
+	var least_conn_peer *Backend
+	for !sp.Backends[i].Alive {
+		i++
+	}
+	least_conn_peer = sp.GetBackend(i)
 
+	// Finding the backend with minimal connections and at the same time alive
 	for _, b := range sp.Backends {
 		if (b.Alive) && (least_conn_peer.CurrentConns > b.CurrentConns) {
 			least_conn_peer = b
