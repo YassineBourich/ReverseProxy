@@ -7,7 +7,7 @@ import (
 
 type RateLimiter struct {
 	Enabled bool `json:"enabled"`
-	MaxReqPerSec int `json:"max_requests_per_second"`
+	MaxReqPerMin int `json:"max_requests_per_minute"`
 }
 
 type ReverseProxyRateLimiter struct {
@@ -23,7 +23,7 @@ func CreateReverseProxyRateLimiter(rl RateLimiter) *ReverseProxyRateLimiter {
 	}
 	rp_rl := ReverseProxyRateLimiter{}
 	rp_rl.visitors = make(map[string]time.Time)
-	rp_rl.min_time_difference = time.Second / time.Duration(rl.MaxReqPerSec)
+	rp_rl.min_time_difference = time.Minute / time.Duration(rl.MaxReqPerMin)
 	return &rp_rl
 }
 
