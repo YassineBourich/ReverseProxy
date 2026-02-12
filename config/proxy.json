@@ -2,12 +2,12 @@
     "port": 8080,
     "strategy": "least-conn",
     "health_check_frequency": "3s",
-    "logging_enabled": true,
-    "rate_limiter": {"enabled": true, "max_requests_per_minute": 50},
+    "logging_enabled": false,
+    "rate_limiter": {"enabled": false, "max_requests_per_minute": 50},
     "panic_recovery": true,
     "sticky_session_enabled": false,
     "ssl": {
-        "enabled": true,
+        "enabled": false,
         "ssl-certificate": "cert.pem",
         "ssl-key": "key.pem"
     }
